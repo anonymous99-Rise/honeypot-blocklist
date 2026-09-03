@@ -7,7 +7,7 @@ import time
 import sys
 from datetime import datetime, timedelta
 
-__version__ = "V1.0.6"
+__version__ = "V1.0.7"
 
 # ================= 配置区 =================
 HFISH_HOST  = os.environ.get("HFISH_HOST",  "IP:52006")
