@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    # 每3小时跑一次
-    - cron: "0 */3 * * *"
+    # 每30分钟跑一次
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
