@@ -1,9 +1,5 @@
 name: Data Quality Check
 
-# 触发条件：
-# 1. 向 main 分支推送代码时
-# 2. 发起 Pull Request 时
-# 3. 每天凌晨 0 点定时检查 (可选)
 on:
   push:
     branches: [ "main" ]
@@ -16,29 +12,89 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. 拉取代码
     - uses: actions/checkout@v3
 
-    # 2. 设置 Python 环境
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
         python-version: "3.9"
 
-    # 3. 安装依赖 (如果有的话，这里只需运行标准库)
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        # pip install -r tools/requirements.txt (如果后续脚本复杂了再加)
+      run: pip install feedgenerator
 
-    # 4. 运行我们写的校验脚本
     - name: Run Validation Script
-      run: |
-        python tests/validate_feed.py
-    
-    # 5. (可选) 简单的代码语法检查，确保 tools 目录下的代码没写错
+      run: python tests/validate_feed.py
+
     - name: Lint Python Tools
+      run: pip install flake8 && flake8 tools --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Generate RSS Feed
       run: |
-        pip install flake8
-        # 检查 tools 目录，忽略一些格式警告，只看语法错误
-        flake8 tools --count --select=E9,F63,F7,F82 --show-source --statistics
+        python - <<'EOF'
+        import datetime, io
+        import feedgenerator
+        from pathlib import Path
+
+        # Read IP count from ip_list.txt
+        ip_file = Path("ip_list.txt")
+        lines = [l.strip() for l in ip_file.read_text().splitlines() if l.strip() and not l.startswith("#")]
+        ip_count = len(lines)
+
+        # Parse last update time from first comment line
+        first_line = ip_file.read_text().splitlines()[0] if ip_file.read_text() else ""
+        last_update = datetime.datetime.now(datetime.timezone.utc)
+        try:
+            for line in ip_file.read_text().splitlines()[:2]:
+                if "Updated:" in line:
+                    last_update = datetime.datetime.strptime(line.split("Updated:")[1].strip(), "%Y-%m-%d %H:%M:%S.%f")
+                    last_update = last_update.replace(tzinfo=datetime.timezone.utc)
+                    break
+        except:
+            pass
+
+        feed = feedgenerator.Rss201rev2Feed(
+            title="HFish Honeypot Threat Feed",
+            link="https://yuexuan521.github.io/honeypot-blocklist/",
+            description="High-fidelity malicious IP feed generated from HFish honeypot telemetry. Updated every 2-4 hours.",
+            language="en",
+            managing_editor="anonymous99-r@proton.me",
+            web_master="anonymous99-r@proton.me",
+            ttl=180,
+        )
+
+        feed.add_item(
+            title=f"Feed Updated - {last_update.strftime('%Y-%m-%d %H:%M:%S')}",
+            link="https://yuexuan521.github.io/honeypot-blocklist/ip_list.txt",
+            guid="https://yuexuan521.github.io/honeypot-blocklist/ip_list.txt",
+            description=f"New threat feed published. {ip_count} IPs in blocklist. Time window: last 24 hours.",
+            pubdate=last_update,
+        )
+
+        buf = io.StringIO()
+        feed.write(buf, encoding="utf-8")
+        Path("rss.xml").write_text(buf.getvalue(), encoding="utf-8")
+        print(f"Generated rss.xml with {ip_count} IPs")
+
+    - name: Update HTML
+      run: |
+        python - <<'EOF'
+        from pathlib import Path
+
+        ip_file = Path("ip_list.txt")
+        lines = [l.strip() for l in ip_file.read_text().splitlines() if l.strip() and not l.startswith("#")]
+        ip_count = len(lines)
+
+        html = Path("index.html").read_text(encoding="utf-8")
+        # Update the static IP count placeholder
+        html = html.replace('<span class="stat-value" id="ip-count">--</span>', f'<span class="stat-value" id="ip-count">{ip_count}</span>')
+        Path("index.html").write_text(html, encoding="utf-8")
+        print(f"Updated index.html with {ip_count} IPs")
+        EOF
+
+    - name: Commit and Push Changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add rss.xml index.html
+        git diff --staged --quiet || git commit -m "ci: auto-update RSS feed and HTML [skip ci]"
+        git push
