@@ -104,6 +104,7 @@ def main():
                 print(data_content) # 打印出来看看
     else:
         print(f"[!] Error: No 'data' field. keys: {result.keys()}")
+        print(f"[!] verbose_msg: {result.get('verbose_msg', 'N/A')}")
 
     print(f"[-] Raw IPs found: {len(raw_ips)}")
 
