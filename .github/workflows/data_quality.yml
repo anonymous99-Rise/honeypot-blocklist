@@ -77,6 +77,7 @@ jobs:
         feed.write(buf, encoding="utf-8")
         Path("rss.xml").write_text(buf.getvalue(), encoding="utf-8")
         print(f"Generated rss.xml with {ip_count} IPs")
+        EOF
 
     - name: Update HTML
       run: |
@@ -99,5 +100,21 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add rss.xml index.html
-        git diff --staged --quiet || git commit -m "ci: auto-update RSS feed and HTML [skip ci]"
-        git push
+        if git diff --staged --quiet; then
+          echo "No feed or HTML changes detected; skipping commit and push."
+          exit 0
+        fi
+
+        git commit -m "ci: auto-update RSS feed and HTML [skip ci]"
+
+        for attempt in 1 2 3; do
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          if git push; then
+            exit 0
+          fi
+          echo "Push failed on attempt ${attempt}; retrying..."
+          sleep 2
+        done
+
+        echo "Failed to push after 3 attempts."
+        exit 1
