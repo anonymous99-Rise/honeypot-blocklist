@@ -54,7 +54,7 @@ jobs:
 
         feed = feedgenerator.Rss201rev2Feed(
             title="HFish Honeypot Threat Feed",
-            link="https://yuexuan521.github.io/honeypot-blocklist/",
+            link="https://anonymous99-rise.github.io/honeypot-blocklist/",
             description="High-fidelity malicious IP feed generated from HFish honeypot telemetry. Updated every 2-4 hours.",
             language="en",
             managing_editor="anonymous99-r@proton.me",
@@ -64,8 +64,8 @@ jobs:
 
         feed.add_item(
             title=f"Feed Updated - {last_update.strftime('%Y-%m-%d %H:%M:%S')}",
-            link="https://yuexuan521.github.io/honeypot-blocklist/ip_list.txt",
-            guid="https://yuexuan521.github.io/honeypot-blocklist/ip_list.txt",
+            link="https://anonymous99-rise.github.io/honeypot-blocklist/ip_list.txt",
+            guid="https://anonymous99-rise.github.io/honeypot-blocklist/ip_list.txt",
             description=f"New threat feed published. {ip_count} IPs in blocklist. Time window: last 24 hours.",
             pubdate=last_update,
         )
