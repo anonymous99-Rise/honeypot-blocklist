@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import ipaddress
@@ -9,9 +10,9 @@ from datetime import datetime, timedelta
 __version__ = "V1.0.4"
 
 # ================= 配置区 =================
-HFISH_HOST = "https://IP:4433"                       #!!填写你的Hish网址!!
-API_KEY = ""                                         #!!填写你的Hish API Key!!
-OUTPUT_TXT = "/root/threat-feed/ip_list.txt"         #!!填写你保存文件的地址!!
+HFISH_HOST  = os.environ.get("HFISH_HOST",  "https://IP:52006")
+API_KEY     = os.environ.get("HFISH_API_KEY", "")
+OUTPUT_TXT  = os.environ.get("OUTPUT_TXT",   "ip_list.txt")
 TIME_WINDOW_HOURS = 24 
 
 LOCAL_WHITELIST = [
