@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HFish Honeypot Threat Feed</title>
+  <title>HFish 蜜罐威胁情报 Feed</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
     .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
     h1 { color: #58a6ff; margin-bottom: 8px; }
     .subtitle { color: #8b949e; margin-bottom: 32px; }
@@ -34,61 +34,61 @@
 </head>
 <body>
   <div class="container">
-    <h1>HFish Honeypot Threat Feed <span class="badge">LIVE</span></h1>
-    <p class="subtitle">High-fidelity malicious IP feed generated from HFish honeypot telemetry</p>
+    <h1>HFish 蜜罐威胁情报 Feed <span class="badge">LIVE</span></h1>
+    <p class="subtitle">基于 HFish 蜜罐遥测数据生成的高可信恶意 IP 情报 feed</p>
 
     <div class="stats">
       <div class="stat">
         <div class="stat-value" id="ip-count">--</div>
-        <div class="stat-label">IPs in blocklist</div>
+        <div class="stat-label">封禁 IP 数量</div>
       </div>
       <div class="stat">
         <div class="stat-value">2-4h</div>
-        <div class="stat-label">Update cadence</div>
+        <div class="stat-label">更新频率</div>
       </div>
       <div class="stat">
         <div class="stat-value">24h</div>
-        <div class="stat-label">Time window</div>
+        <div class="stat-label">时间窗口</div>
       </div>
       <div class="stat">
         <div class="stat-value">TXT</div>
-        <div class="stat-label">Primary format</div>
+        <div class="stat-label">主要格式</div>
       </div>
     </div>
 
     <div class="section">
-      <h2>📡 Threat Feed URL</h2>
+      <h2>📡 威胁情报 URL</h2>
       <div class="feed-url">
         <a href="ip_list.txt">https://anonymous99-rise.github.io/honeypot-blocklist/ip_list.txt</a>
       </div>
-      <a href="ip_list.txt" class="btn">⬇️ Download IP List</a>
-      <a href="rss.xml" class="btn btn-outline">📠 RSS Feed</a>
-      <p class="update-time">Last updated: <span id="last-update">Loading...</span></p>
+      <a href="ip_list.txt" class="btn">⬇️ 下载 IP 列表</a>
+      <a href="rss.xml" class="btn btn-outline">📠 RSS 订阅</a>
+      <p class="update-time">最后更新: <span id="last-update">加载中...</span></p>
     </div>
 
     <div class="section">
-      <h2>🔧 Quick Start</h2>
+      <h2>🔧 快速开始</h2>
       <pre style="background: #0d1117; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.6;">
-# Download the feed
+# 下载最新情报
 wget https://anonymous99-rise.github.io/honeypot-blocklist/ip_list.txt
 
-# Use with ipset + iptables
+# 配合 ipset + iptables 使用
 while read ip; do ipset add honeypot_blacklist "$ip"; done < ip_list.txt
 iptables -I INPUT -m set --match-set honeypot_blacklist src -j DROP</pre>
     </div>
 
     <div class="section">
-      <h2>📋 Supported Formats</h2>
+      <h2>📋 支持格式</h2>
       <div class="formats">
-        <span class="format-tag">TXT (one IP per line)</span>
-        <span class="format-tag">RSS (Atom feed)</span>
-        <span class="format-tag">JSON (via SDK)</span>
+        <span class="format-tag">TXT (每行一个 IP)</span>
+        <span class="format-tag">RSS (Atom 订阅)</span>
+        <span class="format-tag">JSON (SDK)</span>
       </div>
     </div>
 
     <div class="footer">
-      <p>Powered by <a href="https://hfish.net/">HFish</a> · <a href="https://github.com/yuexuan521/honeypot-blocklist">View on GitHub</a></p>
-      <p style="margin-top: 8px;"><a href="rss.xml" class="rss-link">📠 Subscribe via RSS</a></p>
+      <p>Powered by <a href="https://hfish.net/">HFish</a> · <a href="https://github.com/anonymous99-Rise/honeypot-blocklist">查看 GitHub</a></p>
+      <p style="margin-top: 8px;"><a href="rss.xml" class="rss-link">📠 RSS 订阅</a></p>
     </div>
   </div>
 
@@ -103,7 +103,7 @@ iptables -I INPUT -m set --match-set honeypot_blacklist src -j DROP</pre>
     fetch('ip_list.txt')
       .then(r => {
         const date = r.headers.get('Last-Modified') || r.headers.get('Date');
-        if (date) document.getElementById('last-update').textContent = new Date(date).toLocaleString();
+        if (date) document.getElementById('last-update').textContent = new Date(date).toLocaleString('zh-CN');
       })
       .catch(() => {});
   </script>
