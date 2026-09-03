@@ -6,6 +6,8 @@ import time
 import sys
 from datetime import datetime, timedelta
 
+__version__ = "V1.0.0"
+
 # ================= 配置区 =================
 HFISH_HOST = "https://IP:4433"                       #!!填写你的Hish网址!!
 API_KEY = ""                                         #!!填写你的Hish API Key!!
