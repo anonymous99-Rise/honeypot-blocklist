@@ -1,0 +1,42 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version (e.g. 2026.09.03)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: https://anonymous99-rise.github.io/honeypot-blocklist/
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Update version file
+        run: |
+          echo "${{ inputs.version }}" > VERSION
+          cat VERSION
+
+      - name: Create tag
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add VERSION
+          git commit -m "chore: bump version to ${{ inputs.version }}"
+          git tag "v${{ inputs.version }}"
+          git push origin main --tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ inputs.version }}"
+          name: "Release v${{ inputs.version }}"
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
