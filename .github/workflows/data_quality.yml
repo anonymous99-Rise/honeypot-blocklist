@@ -92,24 +92,34 @@ jobs:
     - name: Update HTML
       run: |
         python - <<'EOF'
+        import json
         from pathlib import Path
 
-        ip_file = Path("ip_list.txt")
-        lines = [l.strip() for l in ip_file.read_text().splitlines() if l.strip() and not l.startswith("#")]
-        ip_count = len(lines)
+        meta = json.loads(Path("feed_meta.json").read_text())
+        ip_count = meta["ip_count"]
+        time_window = str(meta["time_window_hours"]) + "h"
+        update_freq = meta["update_frequency"]
 
         html = Path("index.html").read_text(encoding="utf-8")
-        # Update the static IP count placeholder
-        html = html.replace('<span class="stat-value" id="ip-count">--</span>', f'<span class="stat-value" id="ip-count">{ip_count}</span>')
+        # Replace all 4 stat values by id
+        replacements = {
+            'id="ip-count"': f'id="ip-count">{ip_count}',
+            '>2-4h<': f'>{update_freq}<',
+            '>24h<': f'>{time_window}<',
+            '>TXT<': '>TXT + JSON<',
+        }
+        for old, new in replacements.items():
+            html = html.replace(old, new)
+
         Path("index.html").write_text(html, encoding="utf-8")
-        print(f"Updated index.html with {ip_count} IPs")
+        print(f"Updated index.html: {ip_count} IPs, {update_freq}, {time_window}")
         EOF
 
     - name: Commit and Push Changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add rss.xml index.html ip_list.txt
+        git add rss.xml index.html ip_list.txt ip_list.json feed_meta.json
         git commit -m "ci: auto-update RSS feed and HTML [skip ci]" || {
           echo "Nothing to commit; skipping push."
           exit 0

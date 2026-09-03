@@ -126,13 +126,29 @@ def main():
 
     print(f"[-] Final Unique IPs: {len(clean_ips)}")
 
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     with open(OUTPUT_TXT, 'w') as f:
         f.write(f"# HFish Threat Feed\n")
-        f.write(f"# Updated: {datetime.now()}\n")
+        f.write(f"# Updated: {now}\n")
         for ip in clean_ips:
             f.write(f"{ip}\n")
     print(f"[-] Saved to {OUTPUT_TXT}")
+
+    import json
+    with open("ip_list.json", 'w') as f:
+        json.dump(list(clean_ips), f, indent=2)
+    print(f"[-] Saved ip_list.json with {len(clean_ips)} IPs")
+
+    meta = {
+        "ip_count": len(clean_ips),
+        "updated_at": now,
+        "time_window_hours": TIME_WINDOW_HOURS,
+        "update_frequency": "30min"
+    }
+    with open("feed_meta.json", 'w') as f:
+        json.dump(meta, f, indent=2)
+    print(f"[-] Saved feed_meta.json")
 
 if __name__ == "__main__":
     main()
