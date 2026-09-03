@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 __version__ = "V1.0.5"
 
 # ================= 配置区 =================
-HFISH_HOST  = os.environ.get("HFISH_HOST",  "https://IP:52006")
+HFISH_HOST  = os.environ.get("HFISH_HOST",  "IP:52006")
 API_KEY     = os.environ.get("HFISH_API_KEY", "")
 OUTPUT_TXT  = os.environ.get("OUTPUT_TXT",   "ip_list.txt")
 TIME_WINDOW_HOURS = 24 
@@ -59,7 +59,7 @@ class WhitelistManager:
         return False
 
 def get_data():
-    url = f"{HFISH_HOST}/api/v1/attack/ip?api_key={API_KEY}"
+    url = f"https://{HFISH_HOST}/api/v1/attack/ip?api_key={API_KEY}"
     end_time = int(time.time())
     start_time = 0 if TIME_WINDOW_HOURS == 0 else int(end_time - (TIME_WINDOW_HOURS * 3600))
     
